@@ -3,7 +3,8 @@
 *.swo
 *.swp
 /.bundle
-/.env.local
+/.env
+/.ruby-gemset
 /coverage/*
 /db/*.sqlite3
 /log/*

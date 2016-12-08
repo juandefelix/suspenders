@@ -1,16 +1,25 @@
 # <%= app_name.humanize %>
 
+## Requirements
+
+You'll need the following to get started.
+
+- <%= Suspenders::RUBY_VERSION %>
+- Postgres
+- Heroku CLI
+- [Mailcatcher](https://mailcatcher.me/)
+
 ## Getting Started
 
-After you have cloned this repo, run this setup script to set up your machine
-with the necessary dependencies to run and test this app:
+To get started, simply run `bin/setup`. This will do the following:
 
-    % ./bin/setup
+- Setup git remotes for the kohactive upstream and Heroku production
+- Bundle install
+- Copy the .env.example over to .env
+- Setup the database
+- Clear any logs or temporary files
 
-It assumes you have a machine equipped with Ruby, Postgres, etc. If not, set up
-your machine with [this script].
-
-[this script]: https://github.com/thoughtbot/laptop
+Once the setup is complete, you can modify any environment variables in the `.env` file, if needed.
 
 After setting up, you can run the application using [Heroku Local]:
 
@@ -18,11 +27,3 @@ After setting up, you can run the application using [Heroku Local]:
 
 [Heroku Local]: https://devcenter.heroku.com/articles/heroku-local
 
-## Guidelines
-
-Use the following guides for getting things done, programming well, and
-programming in style.
-
-* [Protocol](http://github.com/thoughtbot/guides/blob/master/protocol)
-* [Best Practices](http://github.com/thoughtbot/guides/blob/master/best-practices)
-* [Style](http://github.com/thoughtbot/guides/blob/master/style)

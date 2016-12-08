@@ -37,7 +37,7 @@ module Suspenders
       invoke :setup_test_environment
       invoke :setup_production_environment
       invoke :setup_secret_token
-      invoke :create_suspenders_views
+      # invoke :create_suspenders_views
       invoke :configure_app
       invoke :copy_miscellaneous_files
       invoke :customize_error_pages
@@ -49,10 +49,10 @@ module Suspenders
       invoke :create_local_heroku_setup
       invoke :create_heroku_apps
       invoke :create_github_repo
-      invoke :setup_segment
+      # invoke :setup_segment
       invoke :setup_bundler_audit
       invoke :setup_spring
-      invoke :generate_default
+      # invoke :generate_default
       invoke :outro
     end
 
@@ -119,19 +119,19 @@ module Suspenders
       build :setup_secret_token
     end
 
-    def create_suspenders_views
-      say 'Creating suspenders views'
-      build :create_partials_directory
-      build :create_shared_flashes
-      build :create_shared_javascripts
-      build :create_shared_css_overrides
-      build :create_application_layout
-    end
+    # def create_suspenders_views
+    #   say 'Creating suspenders views'
+    #   build :create_partials_directory
+    #   build :create_shared_flashes
+    #   build :create_shared_javascripts
+    #   build :create_shared_css_overrides
+    #   build :create_application_layout
+    # end
 
     def configure_app
       say 'Configuring app'
       build :configure_action_mailer
-      build :configure_active_job
+      # build :configure_active_job
       build :configure_time_formats
       build :setup_default_rake_task
       build :replace_default_puma_configuration
@@ -230,6 +230,7 @@ module Suspenders
     end
 
     def self.banner
+      puts "options:: #{options}"
       "suspenders #{arguments.map(&:usage).join(' ')} [options]"
     end
 

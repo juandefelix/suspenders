@@ -34,28 +34,18 @@ module Suspenders
       )
     end
 
-    def raise_on_missing_assets_in_test
-      configure_environment "test", "config.assets.raise_runtime_errors = true"
-    end
-
     def raise_on_delivery_errors
       replace_in_file 'config/environments/development.rb',
         'raise_delivery_errors = false', 'raise_delivery_errors = true'
     end
 
-    def remove_turbolinks
-      replace_in_file(
-        "app/assets/javascripts/application.js",
-        "//= require turbolinks",
-        ""
-      )
-    end
-
     def set_test_delivery_method
       inject_into_file(
         "config/environments/development.rb",
-        "\n  config.action_mailer.delivery_method = :file",
+        "\n  config.action_mailer.delivery_method = :smtp",
         after: "config.action_mailer.raise_delivery_errors = true",
+        after: "config.action_mailer.smtp_settings = { address: '127.0.0.1', port: 1025 }",
+        after: "config.action_mailer.default_url_options = { host: ENV['APPLICATION_HOST'] }"
       )
     end
 
@@ -66,7 +56,6 @@ module Suspenders
     Bullet.bullet_logger = true
     Bullet.rails_logger = true
   end
-
       RUBY
 
       inject_into_file(
@@ -84,21 +73,9 @@ module Suspenders
       inject_into_class "config/application.rb", "Application", config
     end
 
-    def configure_quiet_assets
-      config = <<-RUBY
-    config.assets.quiet = true
-      RUBY
-
-      inject_into_class "config/application.rb", "Application", config
-    end
-
     def provide_setup_script
       template "bin_setup", "bin/setup", force: true
       run "chmod a+x bin/setup"
-    end
-
-    def provide_dev_prime_task
-      copy_file 'dev.rake', 'lib/tasks/dev.rake'
     end
 
     def configure_generators
@@ -125,10 +102,6 @@ module Suspenders
 
     def generate_factories_file
       copy_file "factories.rb", "spec/factories.rb"
-    end
-
-    def set_up_hound
-      copy_file "hound.yml", ".hound.yml"
     end
 
     def configure_smtp
@@ -168,56 +141,12 @@ module Suspenders
       configure_environment "production", "config.middleware.use Rack::Deflater"
     end
 
-    def setup_asset_host
-      replace_in_file 'config/environments/production.rb',
-        "# config.action_controller.asset_host = 'http://assets.example.com'",
-        'config.action_controller.asset_host = ENV.fetch("ASSET_HOST", ENV.fetch("APPLICATION_HOST"))'
-
-      replace_in_file 'config/initializers/assets.rb',
-        "config.assets.version = '1.0'",
-        'config.assets.version = (ENV["ASSETS_VERSION"] || "1.0")'
-
-      config = <<-EOD
-config.public_file_server.headers = {
-    "Cache-Control" => "public, max-age=31557600",
-  }
-      EOD
-
-      configure_environment("production", config)
-    end
-
     def setup_secret_token
       template 'secrets.yml', 'config/secrets.yml', force: true
     end
 
     def disallow_wrapping_parameters
       remove_file "config/initializers/wrap_parameters.rb"
-    end
-
-    def create_partials_directory
-      empty_directory 'app/views/application'
-    end
-
-    def create_shared_flashes
-      copy_file "_flashes.html.erb", "app/views/application/_flashes.html.erb"
-      copy_file "flashes_helper.rb", "app/helpers/flashes_helper.rb"
-    end
-
-    def create_shared_javascripts
-      copy_file '_javascript.html.erb', 'app/views/application/_javascript.html.erb'
-    end
-
-    def create_shared_css_overrides
-      copy_file(
-        "_css_overrides.html.erb",
-        "app/views/application/_css_overrides.html.erb",
-      )
-    end
-
-    def create_application_layout
-      template 'suspenders_layout.html.erb.erb',
-        'app/views/layouts/application.html.erb',
-        force: true
     end
 
     def use_postgres_config_template
@@ -241,6 +170,7 @@ config.public_file_server.headers = {
 
     def set_ruby_to_version_being_used
       create_file '.ruby-version', "#{Suspenders::RUBY_VERSION}\n"
+      create_file '.ruby-gemset', "#{app_name}"
     end
 
     def enable_database_cleaner
@@ -267,7 +197,7 @@ config.public_file_server.headers = {
     end
 
     def configure_ci
-      template "circle.yml.erb", "circle.yml"
+      # template "circle.yml.erb", "circle.yml"
     end
 
     def configure_i18n_for_test_environment
@@ -280,15 +210,11 @@ config.public_file_server.headers = {
     end
 
     def configure_background_jobs_for_rspec
-      run 'rails g delayed_job:active_record'
+      # run 'rails g delayed_job:active_record'
     end
 
     def configure_action_mailer_in_specs
       copy_file 'action_mailer.rb', 'spec/support/action_mailer.rb'
-    end
-
-    def configure_capybara_webkit
-      copy_file "capybara_webkit.rb", "spec/support/capybara_webkit.rb"
     end
 
     def configure_time_formats
@@ -304,22 +230,18 @@ Rack::Timeout.timeout = (ENV["RACK_TIMEOUT"] || 10).to_i
       append_file "config/environments/production.rb", rack_timeout_config
     end
 
-    def configure_simple_form
-      bundle_command "exec rails generate simple_form:install"
-    end
-
     def configure_action_mailer
       action_mailer_host "development", %{"localhost:3000"}
       action_mailer_host "test", %{"www.example.com"}
       action_mailer_host "production", %{ENV.fetch("APPLICATION_HOST")}
     end
 
-    def configure_active_job
-      configure_application_file(
-        "config.active_job.queue_adapter = :delayed_job"
-      )
-      configure_environment "test", "config.active_job.queue_adapter = :inline"
-    end
+    # def configure_active_job
+    #   configure_application_file(
+    #     "config.active_job.queue_adapter = :delayed_job"
+    #   )
+    #   configure_environment "test", "config.active_job.queue_adapter = :inline"
+    # end
 
     def generate_rspec
       generate 'rspec:install'
@@ -335,10 +257,16 @@ Rack::Timeout.timeout = (ENV["RACK_TIMEOUT"] || 10).to_i
 
     def setup_default_directories
       [
-        'app/views/pages',
+        'app/forms',
+        'app/services',
+        'app/errors',
+        'app/serializers',
         'spec/lib',
         'spec/controllers',
-        'spec/helpers',
+        'spec/forms',
+        'spec/services',
+        'spec/errors',
+        'spec/serializers',
         'spec/support/matchers',
         'spec/support/mixins',
         'spec/support/shared_examples'
@@ -378,26 +306,26 @@ you can deploy to staging and production with:
       run "chmod a+x bin/deploy"
     end
 
-    def configure_automatic_deployment
-      deploy_command = <<-YML.strip_heredoc
-      deployment:
-        staging:
-          branch: master
-          commands:
-            - bin/deploy staging
-      YML
+    # def configure_automatic_deployment
+    #   deploy_command = <<-YML.strip_heredoc
+    #   deployment:
+    #     staging:
+    #       branch: master
+    #       commands:
+    #         - bin/deploy staging
+    #   YML
 
-      append_file "circle.yml", deploy_command
-    end
+    #   append_file "circle.yml", deploy_command
+    # end
 
     def create_github_repo(repo_name)
       run "hub create #{repo_name}"
     end
 
-    def setup_segment
-      copy_file '_analytics.html.erb',
-        'app/views/application/_analytics.html.erb'
-    end
+    # def setup_segment
+    #   copy_file '_analytics.html.erb',
+    #     'app/views/application/_analytics.html.erb'
+    # end
 
     def setup_bundler_audit
       copy_file "bundler_audit.rake", "lib/tasks/bundler_audit.rake"
@@ -412,19 +340,6 @@ you can deploy to staging and production with:
       copy_file "browserslist", "browserslist"
       copy_file "errors.rb", "config/initializers/errors.rb"
       copy_file "json_encoding.rb", "config/initializers/json_encoding.rb"
-    end
-
-    def customize_error_pages
-      meta_tags =<<-EOS
-  <meta charset="utf-8" />
-  <meta name="ROBOTS" content="NOODP" />
-  <meta name="viewport" content="initial-scale=1" />
-      EOS
-
-      %w(500 404 422).each do |page|
-        inject_into_file "public/#{page}.html", meta_tags, after: "<head>\n"
-        replace_in_file "public/#{page}.html", /<!--.+-->\n/, ''
-      end
     end
 
     def remove_config_comment_lines
