@@ -37,7 +37,6 @@ module Suspenders
       invoke :setup_test_environment
       invoke :setup_production_environment
       invoke :setup_secret_token
-      # invoke :create_suspenders_views
       invoke :configure_app
       invoke :copy_miscellaneous_files
       invoke :customize_error_pages
@@ -49,10 +48,8 @@ module Suspenders
       invoke :create_local_heroku_setup
       invoke :create_heroku_apps
       invoke :create_github_repo
-      # invoke :setup_segment
       invoke :setup_bundler_audit
       invoke :setup_spring
-      # invoke :generate_default
       invoke :outro
     end
 
@@ -74,31 +71,24 @@ module Suspenders
 
     def setup_development_environment
       say 'Setting up the development environment'
-      build :raise_on_missing_assets_in_test
       build :raise_on_delivery_errors
-      build :remove_turbolinks
       build :set_test_delivery_method
       build :add_bullet_gem_configuration
       build :raise_on_unpermitted_parameters
       build :provide_setup_script
-      build :provide_dev_prime_task
       build :configure_generators
       build :configure_i18n_for_missing_translations
-      build :configure_quiet_assets
     end
 
     def setup_test_environment
       say 'Setting up the test environment'
       build :set_up_factory_girl_for_rspec
       build :generate_factories_file
-      build :set_up_hound
       build :generate_rspec
       build :configure_rspec
-      build :configure_background_jobs_for_rspec
       build :enable_database_cleaner
       build :provide_shoulda_matchers_config
       build :configure_spec_support_features
-      build :configure_ci
       build :configure_i18n_for_test_environment
       build :configure_action_mailer_in_specs
       build :configure_capybara_webkit
@@ -118,19 +108,9 @@ module Suspenders
       build :setup_secret_token
     end
 
-    # def create_suspenders_views
-    #   say 'Creating suspenders views'
-    #   build :create_partials_directory
-    #   build :create_shared_flashes
-    #   build :create_shared_javascripts
-    #   build :create_shared_css_overrides
-    #   build :create_application_layout
-    # end
-
     def configure_app
       say 'Configuring app'
       build :configure_action_mailer
-      # build :configure_active_job
       build :configure_time_formats
       build :setup_default_rake_task
       build :replace_default_puma_configuration
@@ -172,11 +152,6 @@ module Suspenders
       end
     end
 
-    def setup_segment
-      say 'Setting up Segment'
-      build :setup_segment
-    end
-
     def setup_dotfiles
       build :copy_dotfiles
     end
@@ -191,8 +166,8 @@ module Suspenders
     end
 
     def setup_spring
-      say "Springifying binstubs"
-      build :setup_spring
+      # say "Springifying binstubs"
+      # build :setup_spring
     end
 
     def init_git
@@ -218,9 +193,7 @@ module Suspenders
     end
 
     def generate_default
-      run("spring stop")
-      generate("suspenders:static")
-      generate("suspenders:stylesheet_base")
+      # run("spring stop")
     end
 
     def outro

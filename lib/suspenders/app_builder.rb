@@ -196,10 +196,6 @@ module Suspenders
       copy_file "spec_helper.rb", "spec/spec_helper.rb"
     end
 
-    def configure_ci
-      # template "circle.yml.erb", "circle.yml"
-    end
-
     def configure_i18n_for_test_environment
       copy_file "i18n.rb", "spec/support/i18n.rb"
     end
@@ -207,10 +203,6 @@ module Suspenders
     def configure_i18n_for_missing_translations
       raise_on_missing_translations_in("development")
       raise_on_missing_translations_in("test")
-    end
-
-    def configure_background_jobs_for_rspec
-      # run 'rails g delayed_job:active_record'
     end
 
     def configure_action_mailer_in_specs
@@ -235,13 +227,6 @@ Rack::Timeout.timeout = (ENV["RACK_TIMEOUT"] || 10).to_i
       action_mailer_host "test", %{"www.example.com"}
       action_mailer_host "production", %{ENV.fetch("APPLICATION_HOST")}
     end
-
-    # def configure_active_job
-    #   configure_application_file(
-    #     "config.active_job.queue_adapter = :delayed_job"
-    #   )
-    #   configure_environment "test", "config.active_job.queue_adapter = :inline"
-    # end
 
     def generate_rspec
       generate 'rspec:install'
@@ -306,26 +291,9 @@ you can deploy to staging and production with:
       run "chmod a+x bin/deploy"
     end
 
-    # def configure_automatic_deployment
-    #   deploy_command = <<-YML.strip_heredoc
-    #   deployment:
-    #     staging:
-    #       branch: master
-    #       commands:
-    #         - bin/deploy staging
-    #   YML
-
-    #   append_file "circle.yml", deploy_command
-    # end
-
     def create_github_repo(repo_name)
       run "hub create #{repo_name}"
     end
-
-    # def setup_segment
-    #   copy_file '_analytics.html.erb',
-    #     'app/views/application/_analytics.html.erb'
-    # end
 
     def setup_bundler_audit
       copy_file "bundler_audit.rake", "lib/tasks/bundler_audit.rake"
@@ -333,7 +301,7 @@ you can deploy to staging and production with:
     end
 
     def setup_spring
-      bundle_command "exec spring binstub --all"
+      # bundle_command "exec spring binstub --all"
     end
 
     def copy_miscellaneous_files
