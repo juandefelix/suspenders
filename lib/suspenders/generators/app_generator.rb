@@ -97,7 +97,8 @@ module Suspenders
       build :set_up_hound
       build :generate_rspec
       build :configure_rspec
-      build :configure_background_jobs_for_rspec
+      # TODO: find if we can do something similar with Sidekiq
+      # build :configure_background_jobs_for_rspec
       build :enable_database_cleaner
       build :provide_shoulda_matchers_config
       build :configure_spec_support_features
@@ -222,8 +223,8 @@ module Suspenders
 
     def generate_default
       run("spring stop")
-      generate("suspenders:static")
-      generate("suspenders:stylesheet_base")
+      # generate("suspenders:static")
+      # generate("suspenders:stylesheet_base")
     end
 
     def outro
