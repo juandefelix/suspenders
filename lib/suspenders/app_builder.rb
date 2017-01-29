@@ -471,6 +471,14 @@ end
       end
     end
 
+    def create_additional_app_directories
+      empty_directory_with_keep_file 'app/errors'
+      empty_directory_with_keep_file 'app/forms'
+      empty_directory_with_keep_file 'app/services'
+      empty_directory_with_keep_file 'app/workers'
+      empty_directory_with_keep_file 'app/serializers/api/v1'
+    end
+
     private
 
     def raise_on_missing_translations_in(environment)

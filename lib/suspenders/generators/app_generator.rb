@@ -38,6 +38,7 @@ module Suspenders
       invoke :setup_production_environment
       invoke :setup_secret_token
       invoke :create_suspenders_views
+      invoke :add_kohactive_app_directory
       invoke :configure_app
       invoke :copy_miscellaneous_files
       invoke :customize_error_pages
@@ -231,6 +232,11 @@ module Suspenders
 
     def self.banner
       "suspenders #{arguments.map(&:usage).join(' ')} [options]"
+    end
+
+    def add_kohactive_app_directory
+      say 'Creating additional app folders: errors, forms, services, workers, serializers'
+      build :create_additional_app_directories
     end
 
     protected
