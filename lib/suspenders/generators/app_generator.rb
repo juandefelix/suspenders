@@ -39,6 +39,7 @@ module Suspenders
       invoke :setup_secret_token
       invoke :create_suspenders_views
       invoke :add_kohactive_app_directory
+      invoke :add_api_sessions_controller
       invoke :configure_app
       invoke :copy_miscellaneous_files
       invoke :customize_error_pages
@@ -237,6 +238,11 @@ module Suspenders
     def add_kohactive_app_directory
       say 'Creating additional app folders: errors, forms, services, workers, serializers'
       build :create_additional_app_directories
+    end
+
+    def add_api_sessions_controller
+      say 'Copying sessions controller'
+      template 'sessions_controller.rb', 'app/controllers/api/v1/sessioins_controller.rb'
     end
 
     protected
