@@ -242,7 +242,7 @@ module Suspenders
 
     def add_api_sessions_controller
       say 'Copying sessions controller'
-      template 'sessions_controller.rb', 'app/controllers/api/v1/sessioins_controller.rb'
+      copy_file 'sessions_controller.rb', 'app/controllers/api/v1/sessioins_controller.rb'
     end
 
     protected
